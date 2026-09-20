@@ -121,148 +121,18 @@ export function createMockAccount(authUserId: string, email: string, name: strin
     updated_at: new Date().toISOString(),
   };
 
-  // Pre-populate realistic initial contacts & conversation
-  const initialContacts: Contact[] = [
-    {
-      id: `contact-alex-${authUserId}`,
-      user_id: authUserId,
-      contact_user_id: MOCK_PERSONA_ALEX.id,
-      contact_profile: MOCK_PERSONA_ALEX,
-      is_close_friend: true,
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-    },
-    {
-      id: `contact-jordan-${authUserId}`,
-      user_id: authUserId,
-      contact_user_id: MOCK_PERSONA_JORDAN.id,
-      contact_profile: MOCK_PERSONA_JORDAN,
-      is_close_friend: false,
-      created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-    }
-  ];
-
-  const convAlexId = `conv-alex-${authUserId}`;
-  const convJordanId = `conv-jordan-${authUserId}`;
-
-  const initialConversations: Conversation[] = [
-    {
-      id: convAlexId,
-      type: 'direct',
-      is_private_vault: false,
-      other_member: MOCK_PERSONA_ALEX,
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-      updated_at: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-      unread_count: 1,
-      is_pinned: true,
-    },
-    {
-      id: convJordanId,
-      type: 'direct',
-      is_private_vault: false,
-      other_member: MOCK_PERSONA_JORDAN,
-      created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-      updated_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-      unread_count: 0,
-      is_pinned: false,
-    }
-  ];
-
-  const initialMessages: Record<string, Message[]> = {
-    [convAlexId]: [
-      {
-        id: `msg-1-${authUserId}`,
-        conversation_id: convAlexId,
-        sender_id: MOCK_PERSONA_ALEX.id,
-        sender_profile: MOCK_PERSONA_ALEX,
-        content: `Hey! Welcome to MESSAGER. Your Communication ID is ${communicationId}. No one can see your phone number or email!`,
-        message_type: 'text',
-        is_edited: false,
-        is_deleted: false,
-        is_read: true,
-        created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-        updated_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-        reactions: [{ id: 'r1', message_id: `msg-1-${authUserId}`, user_id: authUserId, emoji: '🔒', created_at: new Date().toISOString() }]
-      },
-      {
-        id: `msg-2-${authUserId}`,
-        conversation_id: convAlexId,
-        sender_id: MOCK_PERSONA_ALEX.id,
-        sender_profile: MOCK_PERSONA_ALEX,
-        content: `Try posting a Thought or setting up your Private Chat PIN vault in the sidebar. Let me know if you have any questions!`,
-        message_type: 'text',
-        is_edited: false,
-        is_deleted: false,
-        is_read: false,
-        created_at: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-        updated_at: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-      }
-    ],
-    [convJordanId]: [
-      {
-        id: `msg-j1-${authUserId}`,
-        conversation_id: convJordanId,
-        sender_id: MOCK_PERSONA_JORDAN.id,
-        sender_profile: MOCK_PERSONA_JORDAN,
-        content: `Great connecting with you via Communication ID. The privacy model here is top notch.`,
-        message_type: 'text',
-        is_edited: false,
-        is_deleted: false,
-        is_read: true,
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-        updated_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-      }
-    ]
-  };
-
-  const initialThoughts: Thought[] = [
-    {
-      id: `thought-alex-1`,
-      user_id: MOCK_PERSONA_ALEX.id,
-      user_profile: MOCK_PERSONA_ALEX,
-      content: 'Exploring minimalist privacy architecture today 🌿 Design should protect identity by default.',
-      media_type: 'text',
-      background_style: {
-        theme: 'ocean',
-        gradient: 'from-blue-600 to-indigo-800',
-        font: 'sans'
-      },
-      audience: 'contacts',
-      expires_at: new Date(Date.now() + 1000 * 60 * 60 * 18).toISOString(),
-      created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-      views_count: 4,
-      has_viewed: false,
-    },
-    {
-      id: `thought-sam-1`,
-      user_id: MOCK_PERSONA_SAM.id,
-      user_profile: MOCK_PERSONA_SAM,
-      content: 'Never share personal phone numbers on public forums. 8-digit IDs are the future 🔐',
-      media_type: 'text',
-      background_style: {
-        theme: 'lavender',
-        gradient: 'from-purple-600 to-indigo-700',
-        font: 'sans'
-      },
-      audience: 'close_friends',
-      expires_at: new Date(Date.now() + 1000 * 60 * 60 * 14).toISOString(),
-      created_at: new Date(Date.now() - 1000 * 60 * 60 * 10).toISOString(),
-      views_count: 2,
-      has_viewed: false,
-    }
-  ];
-
   return {
     authUserId,
     email,
     profile,
     settings,
-    contacts: initialContacts,
+    contacts: [],
     contactRequests: [],
-    closeFriends: [MOCK_PERSONA_ALEX.id],
+    closeFriends: [],
     blockedUsers: [],
-    conversations: initialConversations,
-    messages: initialMessages,
-    thoughts: initialThoughts,
+    conversations: [],
+    messages: {},
+    thoughts: [],
   };
 }
 
@@ -283,14 +153,8 @@ export function loadAccountsDatabaseFromStorage(): Record<string, MockAccount> {
     console.error('Failed to load accounts from storage:', err);
   }
 
-  // Initialize with Default Preset Accounts
-  const initial: Record<string, MockAccount> = {};
-  const accA = createMockAccount('user-google-account-a', 'user.a@google.example.com', 'Vaira Prakash', '58392147');
-  const accB = createMockAccount('user-google-account-b', 'user.b@google.example.com', 'Elena Rostova', '74120583');
-  initial[accA.authUserId] = accA;
-  initial[accB.authUserId] = accB;
-  saveAccountsDatabaseToStorage(initial);
-  return initial;
+  // Return a fresh empty database — no preset accounts seeded
+  return {};
 }
 
 export function saveAccountsDatabaseToStorage(db: Record<string, MockAccount>): void {

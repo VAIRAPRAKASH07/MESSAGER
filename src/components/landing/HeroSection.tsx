@@ -16,10 +16,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onSelectPresetAccount,
 }) => {
   return (
-    <section className="relative pt-12 pb-20 sm:pt-20 sm:pb-28 overflow-hidden">
+    <section className="relative pt-12 pb-20 sm:pt-20 sm:pb-28 overflow-hidden bg-canvas-light dark:bg-canvas-dark">
       {/* Background Soft Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-brand-400/10 dark:bg-brand-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[300px] h-[300px] bg-privacy-400/10 dark:bg-privacy-500/10 blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-brand-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/3 right-10 w-[300px] h-[300px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
         {/* Privacy Badge */}
@@ -31,7 +31,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* Main Headline */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-[1.1]">
           Connect without <br className="hidden sm:inline" />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-brand-500 to-privacy-600 dark:from-brand-400 dark:via-brand-300 dark:to-privacy-400">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-brand-500 to-teal-500 dark:from-brand-400 dark:via-brand-300 dark:to-teal-400">
             sharing your number.
           </span>
         </h1>
@@ -47,7 +47,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             onClick={onRegister}
             size="lg"
             variant="primary"
-            className="w-full sm:w-auto shadow-lg shadow-brand-500/25 text-base px-7 py-3.5 rounded-2xl"
+            className="w-full sm:w-auto shadow-md shadow-brand-500/20 text-base px-7 py-3.5 rounded-2xl"
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
             Create New Account
@@ -56,7 +56,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           <Button
             onClick={onSignIn}
             size="lg"
-            variant="secondary"
+            variant="teal"
             className="w-full sm:w-auto text-base px-6 py-3.5 rounded-2xl"
             leftIcon={
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -92,15 +92,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </Button>
         </div>
 
-        {/* Example Communication ID Demonstration Card (Explicitly labeled) */}
-        <div className="mt-14 max-w-lg mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-7 shadow-xl shadow-slate-200/40 dark:shadow-none">
+        {/* Example Communication ID Demonstration Card */}
+        <div className="mt-14 max-w-lg mx-auto bg-white dark:bg-[#151F32] rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-lg shadow-slate-200/30 dark:shadow-none">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/80 text-left">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-privacy-100 dark:bg-privacy-950/80 text-privacy-600 dark:text-privacy-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-brand-50 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 flex items-center justify-center">
                 <KeyRound className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-privacy-600 dark:text-privacy-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
                   Example Communication ID
                 </span>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -113,7 +113,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </span>
           </div>
 
-          <div className="my-6 py-4 px-6 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
+          <div className="my-6 py-4 px-6 bg-canvas-light dark:bg-canvas-dark rounded-2xl border border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
             <div className="text-left">
               <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500">
                 Sample Public Identifier
@@ -123,40 +123,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
             <div className="text-right">
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="inline-flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400 font-medium">
                 <EyeOff className="w-3.5 h-3.5" /> No Phone/Email
               </span>
             </div>
           </div>
 
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed text-left">
-            <strong className="text-slate-700 dark:text-slate-300">Important:</strong> This is a fictional example. Your actual permanent 8-digit Communication ID is generated securely on the server only after Google authentication.
+            <strong className="text-slate-700 dark:text-slate-300">Important:</strong> This is a fictional example. Your actual permanent 8-digit Communication ID is generated securely on the server after authentication.
           </p>
-
-          {/* Quick Account Switching Demo Buttons */}
-          <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-slate-500 dark:text-slate-400">
-            <span>Instant Sandbox Account Switch:</span>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <button
-                onClick={() => onSelectPresetAccount('account_a')}
-                className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/60 dark:hover:bg-brand-900 text-brand-700 dark:text-brand-300 font-medium transition-colors text-center"
-              >
-                Sign in as Account A (5839 2147)
-              </button>
-              <button
-                onClick={() => onSelectPresetAccount('account_b')}
-                className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-privacy-50 hover:bg-privacy-100 dark:bg-privacy-950/60 dark:hover:bg-privacy-900 text-privacy-700 dark:text-privacy-300 font-medium transition-colors text-center"
-              >
-                Sign in as Account B (7412 0583)
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Feature Highlights Grid Under Hero */}
         <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 text-left max-w-4xl mx-auto">
-          <div className="p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60 backdrop-blur-sm">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#151F32] border border-slate-200/70 dark:border-slate-800 shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 flex items-center justify-center mb-3">
               <KeyRound className="w-5 h-5" />
             </div>
             <h3 className="font-semibold text-sm text-slate-900 dark:text-white">
@@ -167,8 +148,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </p>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60 backdrop-blur-sm">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#151F32] border border-slate-200/70 dark:border-slate-800 shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3">
               <Sparkles className="w-5 h-5" />
             </div>
             <h3 className="font-semibold text-sm text-slate-900 dark:text-white">
@@ -179,15 +160,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </p>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60 backdrop-blur-sm">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#151F32] border border-slate-200/70 dark:border-slate-800 shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 flex items-center justify-center mb-3">
               <Lock className="w-5 h-5" />
             </div>
             <h3 className="font-semibold text-sm text-slate-900 dark:text-white">
               PIN-Protected Vault
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Shield confidential chats inside a dedicated Private Chat area guarded by client-side PBKDF2 PIN hashing.
+              Shield confidential chats inside a dedicated Private Chat area guarded by client-side PIN hashing.
             </p>
           </div>
         </div>

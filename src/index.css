@@ -4,27 +4,27 @@
 
 @layer base {
   :root {
-    --color-bg-subtle: #F8FAFC;
+    --color-bg-subtle: #F4F7FB;
     --color-surface-card: #FFFFFF;
     --color-border-subtle: #E2E8F0;
   }
 
   .dark {
-    --color-bg-subtle: #090E17;
-    --color-surface-card: #131D2D;
+    --color-bg-subtle: #0B1120;
+    --color-surface-card: #151F32;
     --color-border-subtle: #1E293B;
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans;
+    @apply bg-[#F4F7FB] text-slate-900 dark:bg-[#0B1120] dark:text-slate-100 font-sans antialiased selection:bg-brand-500/20 selection:text-brand-600;
     -webkit-tap-highlight-color: transparent;
   }
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -32,16 +32,16 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors;
+  @apply bg-slate-300/80 dark:bg-slate-700/80 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors;
 }
 
 /* Glass & Calm surface effects */
 .glass-panel {
-  @apply bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 shadow-sm;
+  @apply bg-white/90 dark:bg-[#151F32]/90 backdrop-blur-md border border-slate-200/70 dark:border-slate-800/70 shadow-sm;
 }
 
 .glass-dropdown {
-  @apply bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-slate-200 dark:border-slate-800 shadow-xl rounded-2xl;
+  @apply bg-white/95 dark:bg-[#151F32]/95 backdrop-blur-lg border border-slate-200/80 dark:border-slate-800/80 shadow-lg rounded-2xl;
 }
 
 /* Communication ID Monospace badge */
@@ -51,16 +51,17 @@
 
 /* Custom animation utility */
 .animate-slide-up-slow {
-  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes slideUp {
   0% {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
+

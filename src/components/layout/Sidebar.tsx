@@ -9,9 +9,8 @@ import {
   Settings, 
   LogOut, 
   Copy, 
-  Check, 
-  Plus,
-  ShieldAlert
+  Check,
+  Plus
 } from 'lucide-react';
 import { Avatar } from '../common/Avatar';
 import { Button } from '../common/Button';
@@ -44,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenContacts,
   onOpenPrivateChatUnlock,
 }) => {
-  const { profile, signOut, switchAccount, activeAccountKey, allAccounts, redirectToRegister } = useAuth();
+  const { profile, signOut } = useAuth();
   const { 
     conversations, 
     privateConversations, 
@@ -352,73 +351,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* 6. Account Switcher: Quick A/B/Custom toggle & Add Account button */}
-      <div className="px-3 pb-2.5 flex items-center gap-1.5 flex-wrap">
-        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wide mr-1">
-          Accounts
-        </span>
-        
-        {/* Preset A */}
-        <button
-          onClick={() => switchAccount('account_a')}
-          title="Switch to Account A (Vaira Prakash)"
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-            activeAccountKey === 'account_a'
-              ? 'bg-brand-500 text-white shadow-sm'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-          }`}
-        >
-          <span className="w-3.5 h-3.5 rounded-full bg-current opacity-60 flex items-center justify-center text-[8px] text-white leading-none">
-            {activeAccountKey === 'account_a' ? '✓' : 'A'}
-          </span>
-          A
-        </button>
-
-        {/* Preset B */}
-        <button
-          onClick={() => switchAccount('account_b')}
-          title="Switch to Account B (Elena Rostova)"
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-            activeAccountKey === 'account_b'
-              ? 'bg-privacy-600 text-white shadow-sm'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-          }`}
-        >
-          <span className="w-3.5 h-3.5 rounded-full bg-current opacity-60 flex items-center justify-center text-[8px] text-white leading-none">
-            {activeAccountKey === 'account_b' ? '✓' : 'B'}
-          </span>
-          B
-        </button>
-
-        {/* Custom accounts if any */}
-        {allAccounts
-          .filter((a) => a.key !== 'account_a' && a.key !== 'account_b')
-          .slice(0, 2)
-          .map((acc) => (
-            <button
-              key={acc.id}
-              onClick={() => switchAccount(acc.id)}
-              title={`Switch to ${acc.name}`}
-              className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold transition-all max-w-[80px] truncate ${
-                activeAccountKey === acc.id
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-            >
-              {acc.name.split(' ')[0]}
-            </button>
-          ))}
-
-        {/* Add Account Button */}
-        <button
-          onClick={redirectToRegister}
-          title="Add New Account (Redirect to Registration)"
-          className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/70 dark:hover:bg-brand-900/80 text-brand-600 dark:text-brand-400 border border-brand-200/60 dark:border-brand-800/50 transition-all ml-auto"
-        >
-          <Plus className="w-3 h-3" />
-          <span>Add</span>
-        </button>
-      </div>
     </aside>
   );
 };

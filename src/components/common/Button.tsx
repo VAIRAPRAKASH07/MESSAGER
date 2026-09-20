@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'privacy' | 'ghost' | 'danger' | 'outline';
+  variant?: 'primary' | 'secondary' | 'teal' | 'privacy' | 'ghost' | 'danger' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -24,11 +24,12 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variants = {
     primary: 'bg-brand-500 hover:bg-brand-600 text-white shadow-sm hover:shadow focus:ring-brand-500 dark:focus:ring-offset-slate-900',
-    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 focus:ring-slate-400',
-    privacy: 'bg-privacy-600 hover:bg-privacy-700 text-white shadow-sm hover:shadow focus:ring-privacy-500',
+    secondary: 'bg-teal-500 hover:bg-teal-600 text-white shadow-sm focus:ring-teal-500 dark:focus:ring-offset-slate-900',
+    teal: 'bg-teal-500 hover:bg-teal-600 text-white shadow-sm focus:ring-teal-500 dark:focus:ring-offset-slate-900',
+    privacy: 'bg-brand-500 hover:bg-brand-600 text-white shadow-sm hover:shadow focus:ring-brand-500',
     ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300 focus:ring-slate-400',
     danger: 'bg-rose-500 hover:bg-rose-600 text-white focus:ring-rose-500',
-    outline: 'border border-slate-300 dark:border-slate-700 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-slate-400',
+    outline: 'border border-slate-300 dark:border-slate-700 bg-transparent hover:bg-slate-100/60 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-slate-400',
   };
 
   const sizes = {

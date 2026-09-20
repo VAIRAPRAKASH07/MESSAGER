@@ -47,8 +47,8 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   const ringStyles = hasUnseenThought
     ? isCloseFriend
-      ? 'ring-[2.5px] ring-emerald-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-950'
-      : 'ring-[2.5px] ring-brand-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-950'
+      ? 'ring-[2.5px] ring-teal-500 ring-offset-2 ring-offset-canvas-light dark:ring-offset-canvas-dark'
+      : 'ring-[2.5px] ring-brand-500 ring-offset-2 ring-offset-canvas-light dark:ring-offset-canvas-dark'
     : '';
 
   return (
@@ -82,7 +82,7 @@ export const Avatar: React.FC<AvatarProps> = ({
 
       {showOnlineStatus && isOnline && (
         <span
-          className={`absolute bottom-0 right-0 rounded-full bg-emerald-500 border-white dark:border-slate-900 ${dotSizes[size]}`}
+          className={`absolute bottom-0 right-0 rounded-full bg-teal-500 border-white dark:border-slate-900 shadow-sm ${dotSizes[size]}`}
           title="Online"
         />
       )}

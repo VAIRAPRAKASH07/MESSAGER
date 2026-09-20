@@ -53,8 +53,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     updateSettings, 
     signOut, 
     switchAccount, 
-    activeAccountKey,
-    allAccounts,
     redirectToRegister 
   } = useAuth();
   
@@ -596,53 +594,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </Button>
                 </div>
 
-                {/* Registered Accounts List */}
+                {/* Current Account Card */}
                 <div className="space-y-2">
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide block">
-                    Your Saved Accounts
+                    Current Account
                   </span>
-
-                  {allAccounts.map((acc) => (
-                    <div
-                      key={acc.id}
-                      className={`p-3.5 rounded-2xl border transition-all ${
-                        acc.isActive
-                          ? 'border-brand-500 bg-brand-50/40 dark:bg-brand-950/30 ring-1 ring-brand-500/20'
-                          : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60'
-                      } flex items-center justify-between`}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Avatar name={acc.name} size="sm" />
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
-                              {acc.name}
-                            </span>
-                            {acc.isActive && (
-                              <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold">
-                                Current
-                              </span>
-                            )}
-                          </div>
-                          <span className="font-mono text-[11px] text-brand-600 dark:text-brand-400 block truncate">
-                            ID: {formatCommunicationId(acc.commId)}
+                  <div className="p-3.5 rounded-2xl border border-brand-500 bg-brand-50/40 dark:bg-brand-950/30 ring-1 ring-brand-500/20 flex items-center justify-between">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar name={profile?.display_name || 'User'} size="sm" />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                            {profile?.display_name || 'User'}
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold">
+                            Active
                           </span>
                         </div>
+                        <span className="font-mono text-[11px] text-brand-600 dark:text-brand-400 block truncate">
+                          ID: {formatCommunicationId(profile?.communication_id)}
+                        </span>
                       </div>
-
-                      <Button
-                        size="sm"
-                        variant={acc.isActive ? 'primary' : 'outline'}
-                        disabled={acc.isActive}
-                        onClick={() => {
-                          onClose();
-                          switchAccount(acc.key || acc.id);
-                        }}
-                      >
-                        {acc.isActive ? 'Active' : 'Switch'}
-                      </Button>
                     </div>
-                  ))}
+                  </div>
                 </div>
 
                 {/* Danger Zone: Delete Current Account */}

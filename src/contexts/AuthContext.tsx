@@ -17,8 +17,11 @@ export interface AccountSummary {
   email: string;
   name: string;
   commId: string;
-  key?: string;
   isActive: boolean;
+}
+
+interface OtpResult {
+  error?: string;
 }
 
 interface AuthContextType {
@@ -32,7 +35,8 @@ interface AuthContextType {
   openRegisterModal: () => void;
   closeRegisterModal: () => void;
   signInWithGoogle: (customEmail?: string, customName?: string) => Promise<void>;
-  registerNewAccount: (displayName: string, customEmail?: string) => Promise<void>;
+  sendOtpEmail: (email: string) => Promise<OtpResult>;
+  verifyOtpCode: (email: string, token: string) => Promise<OtpResult>;
   deleteAccount: (userId?: string) => Promise<void>;
   signOut: () => Promise<void>;
   switchAccount: (accountKeyOrId: string) => Promise<void>;
@@ -40,25 +44,9 @@ interface AuthContextType {
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
   updateSettings: (updates: Partial<UserSettings>) => Promise<void>;
   completeOnboarding: () => void;
-  activeAccountKey: string;
-  allAccounts: AccountSummary[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const PRESET_ACCOUNT_A = {
-  id: 'user-google-account-a',
-  email: 'user.a@google.example.com',
-  name: 'Vaira Prakash',
-  commId: '58392147',
-};
-
-const PRESET_ACCOUNT_B = {
-  id: 'user-google-account-b',
-  email: 'user.b@google.example.com',
-  name: 'Elena Rostova',
-  commId: '74120583',
-};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -68,50 +56,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isOnboarding, setIsOnboarding] = useState<boolean>(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
   const [justGeneratedCommId, setJustGeneratedCommId] = useState<string | null>(null);
-  const [activeAccountKey, setActiveAccountKey] = useState<string>('account_a');
-
-  // Helper to get summaries of all existing accounts
-  const getAllAccounts = (): AccountSummary[] => {
-    return Object.values(mockAccountsDatabase).map((acc) => ({
-      id: acc.authUserId,
-      email: acc.email,
-      name: acc.profile.display_name,
-      commId: acc.profile.communication_id,
-      key: acc.authUserId === PRESET_ACCOUNT_A.id ? 'account_a' : (acc.authUserId === PRESET_ACCOUNT_B.id ? 'account_b' : undefined),
-      isActive: acc.authUserId === user?.id,
-    }));
-  };
-
-  const [allAccounts, setAllAccounts] = useState<AccountSummary[]>([]);
-
-  const refreshAccountsList = () => {
-    setAllAccounts(getAllAccounts());
-  };
 
   // Load active session on mount
   useEffect(() => {
     const initAuth = async () => {
       setIsLoading(true);
       if (isLiveSupabaseConfigured && supabase) {
+        // Check for existing session
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          setUser({ id: session.user.id, email: session.user.email });
-          // Fetch profile
-          const { data: prof } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          if (prof) {
-            setProfile(prof);
-          }
-          const { data: sett } = await supabase
-            .from('user_settings')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
-          if (sett) setSettings(sett);
+          await loadLiveUser(session.user.id, session.user.email);
         }
+
+        // Listen for auth state changes (covers OTP verification callback)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          if (event === 'SIGNED_IN' && session?.user) {
+            await loadLiveUser(session.user.id, session.user.email);
+            setIsRegisterOpen(false);
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setProfile(null);
+            setSettings(null);
+          }
+        });
+
+        setIsLoading(false);
+        return () => subscription.unsubscribe();
       } else {
         // Local Sandbox Session Check
         const savedSession = sessionStorage.getItem('messager_active_session');
@@ -123,16 +93,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             sessionStorage.removeItem('messager_active_session');
           }
         }
+        setIsLoading(false);
       }
-      setIsLoading(false);
-      refreshAccountsList();
     };
 
     initAuth();
   }, []);
 
+  // Load a real Supabase user's profile
+  const loadLiveUser = async (userId: string, email?: string) => {
+    setUser({ id: userId, email });
+    const { data: prof } = await supabase!
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    if (prof) {
+      setProfile(prof);
+    } else {
+      // Profile not yet created (trigger may still be running) — retry once
+      await new Promise((r) => setTimeout(r, 1000));
+      const { data: prof2 } = await supabase!
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (prof2) setProfile(prof2);
+    }
+    const { data: sett } = await supabase!
+      .from('user_settings')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    if (sett) setSettings(sett);
+  };
+
   const loadMockUser = (userId: string, email: string, name: string, commId?: string, isNew = false) => {
-    // Check if user has an existing permanent ID that must never change
     const permanentId = getPermanentIdForUser(userId) || getPermanentIdForUser(email) || commId || generateServerCommunicationId();
 
     if (!mockAccountsDatabase[userId]) {
@@ -141,7 +137,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       mockAccountsDatabase[userId].profile.communication_id = permanentId;
     }
 
-    // Save permanent ID index
     savePermanentIdForUser(userId, permanentId);
     savePermanentIdForUser(email, permanentId);
     saveAccountsDatabaseToStorage(mockAccountsDatabase);
@@ -151,14 +146,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(acc.profile);
     setSettings(acc.settings);
 
-    if (acc.authUserId === PRESET_ACCOUNT_A.id) {
-      setActiveAccountKey('account_a');
-    } else if (acc.authUserId === PRESET_ACCOUNT_B.id) {
-      setActiveAccountKey('account_b');
-    } else {
-      setActiveAccountKey(acc.authUserId);
-    }
-
     sessionStorage.setItem('messager_active_session', JSON.stringify({
       id: acc.authUserId,
       email: acc.email,
@@ -166,11 +153,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       commId: acc.profile.communication_id,
     }));
 
-    refreshAccountsList();
-
     if (isNew) {
       setJustGeneratedCommId(acc.profile.communication_id);
       setIsOnboarding(true);
+    }
+  };
+
+  // ─── Send OTP Email ────────────────────────────────────────────────────────
+  const sendOtpEmail = async (email: string): Promise<OtpResult> => {
+    if (isLiveSupabaseConfigured && supabase) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: undefined, // OTP code flow, not magic link
+        },
+      });
+      if (error) return { error: error.message };
+      return {};
+    } else {
+      // Sandbox simulation
+      console.info('[Sandbox] OTP would be sent to:', email);
+      return {};
+    }
+  };
+
+  // ─── Verify OTP Code ───────────────────────────────────────────────────────
+  const verifyOtpCode = async (email: string, token: string): Promise<OtpResult> => {
+    if (isLiveSupabaseConfigured && supabase) {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'email',
+      });
+      if (error) return { error: error.message };
+      // onAuthStateChange will fire SIGNED_IN and loadLiveUser handles the rest
+      return {};
+    } else {
+      // Sandbox simulation
+      const userId = `user-otp-${Math.random().toString(36).slice(2, 9)}`;
+      const name = email.split('@')[0];
+      const commId = generateServerCommunicationId();
+      loadMockUser(userId, email, name, commId, true);
+      return {};
     }
   };
 
@@ -186,79 +211,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         if (error) throw error;
       } else {
-        // Simulate Google OAuth flow
+        // Sandbox simulation
         await new Promise((r) => setTimeout(r, 400));
-        const email = customEmail || PRESET_ACCOUNT_A.email;
-        const name = customName || PRESET_ACCOUNT_A.name;
-        
-        let userId = PRESET_ACCOUNT_A.id;
-        if (customEmail) {
-          // Check if an existing account with this email exists to preserve permanent identity
-          const existingAcc = Object.values(mockAccountsDatabase).find((a) => a.email.toLowerCase() === customEmail.toLowerCase());
-          userId = existingAcc ? existingAcc.authUserId : `user-${Math.random().toString(36).slice(2, 9)}`;
-        }
-
+        const email = customEmail || 'demo@messager.dev';
+        const name = customName || 'Demo User';
+        const existingAcc = Object.values(mockAccountsDatabase).find((a) => a.email.toLowerCase() === email.toLowerCase());
+        const userId = existingAcc ? existingAcc.authUserId : `user-${Math.random().toString(36).slice(2, 9)}`;
         const isNew = !mockAccountsDatabase[userId];
         loadMockUser(userId, email, name, undefined, isNew);
       }
     } catch (err) {
       console.error('Sign-in failed:', err);
-      alert('Google Sign-In simulation encountered an issue. Check connection.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const registerNewAccount = async (displayName: string, customEmail?: string) => {
-    setIsLoading(true);
-    try {
-      await new Promise((r) => setTimeout(r, 500));
-      const safeName = displayName.trim() || 'New User';
-      const email = customEmail?.trim() || `${safeName.toLowerCase().replace(/\s+/g, '.')}.${Math.floor(1000 + Math.random() * 9000)}@messager.network`;
-      const userId = `user-${Math.random().toString(36).slice(2, 9)}`;
-      const commId = generateServerCommunicationId();
-
-      loadMockUser(userId, email, safeName, commId, true);
-      setIsRegisterOpen(false);
-    } catch (err) {
-      console.error('Registration failed:', err);
+      alert('Google Sign-In encountered an issue. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const switchAccount = async (accountKeyOrId: string) => {
+    // Only used in sandbox mode
+    if (isLiveSupabaseConfigured) return;
     setIsLoading(true);
-    // 1. Wipe current in-memory view
     setProfile(null);
     setSettings(null);
     setUser(null);
     sessionStorage.removeItem('messager_active_session');
     sessionStorage.removeItem('messager_private_unlocked');
-
     await new Promise((r) => setTimeout(r, 300));
 
-    // 2. Resolve account
-    if (accountKeyOrId === 'account_a') {
-      setActiveAccountKey('account_a');
-      const target = PRESET_ACCOUNT_A;
-      const isNew = !mockAccountsDatabase[target.id];
-      loadMockUser(target.id, target.email, target.name, target.commId, isNew);
-    } else if (accountKeyOrId === 'account_b') {
-      setActiveAccountKey('account_b');
-      const target = PRESET_ACCOUNT_B;
-      const isNew = !mockAccountsDatabase[target.id];
-      loadMockUser(target.id, target.email, target.name, target.commId, isNew);
-    } else if (mockAccountsDatabase[accountKeyOrId]) {
+    if (mockAccountsDatabase[accountKeyOrId]) {
       const acc = mockAccountsDatabase[accountKeyOrId];
-      setActiveAccountKey(accountKeyOrId);
       loadMockUser(acc.authUserId, acc.email, acc.profile.display_name, acc.profile.communication_id, false);
     }
     setIsLoading(false);
   };
 
   const redirectToRegister = async () => {
-    // Close current session and open registration page
     setIsLoading(true);
     setUser(null);
     setProfile(null);
@@ -283,8 +271,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         deleteAccountFromDatabase(targetId);
       }
-
-      // Reset state and session
       setUser(null);
       setProfile(null);
       setSettings(null);
@@ -292,7 +278,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setJustGeneratedCommId(null);
       sessionStorage.removeItem('messager_active_session');
       sessionStorage.removeItem('messager_private_unlocked');
-      refreshAccountsList();
     } catch (err) {
       console.error('Delete account failed:', err);
     } finally {
@@ -306,7 +291,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isLiveSupabaseConfigured && supabase) {
         await supabase.auth.signOut();
       }
-      // Strict state clearance across the entire app
       setUser(null);
       setProfile(null);
       setSettings(null);
@@ -332,7 +316,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       mockAccountsDatabase[user.id].profile = updated;
       saveAccountsDatabaseToStorage(mockAccountsDatabase);
     }
-    refreshAccountsList();
   };
 
   const updateSettings = async (updates: Partial<UserSettings>) => {
@@ -366,7 +349,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         openRegisterModal: () => setIsRegisterOpen(true),
         closeRegisterModal: () => setIsRegisterOpen(false),
         signInWithGoogle,
-        registerNewAccount,
+        sendOtpEmail,
+        verifyOtpCode,
         deleteAccount,
         signOut,
         switchAccount,
@@ -374,8 +358,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProfile,
         updateSettings,
         completeOnboarding,
-        activeAccountKey,
-        allAccounts,
       }}
     >
       {children}
